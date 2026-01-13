@@ -1,0 +1,1174 @@
+---
+title: "Violência Contra a Mulher"
+subtitle: "**SINAN - Lei Maria da Penha**"
+author: "Fernanda Kelly R. Silva | Pesquisadora Estatística" 
+editor: visual
+lang: pt 
+date: "`r format(Sys.Date())`" 
+date-format: short 
+toc: true 
+format: 
+    html: 
+      embed-resources: true
+      code-fold: false 
+      code-tools: true  
+      theme: 
+        light: cosmo
+        dark: superhero
+title-block-banner: "true" 
+code-annotations: hover
+execute:
+  warning: false
+  message: false
+  echo: false
+---
+
+```{r}
+library(tidyverse)
+library(readr)
+library(readxl)
+library(gtsummary)
+library(reactable)
+library(kableExtra)
+library(esquisse)
+library(magrittr)
+library(ggplot2)
+library(leaflet)
+library(sf)
+library(leaflet.extras)
+library(geobr)
+#library(read.dbc)
+```
+
+```{r}
+#| eval: false
+mulherPOP_RIP <- read_excel("Dados/mulherPOP_RIP.xlsx") %>% 
+  dplyr::select("Municípios", 'Código', "2018":"2024") %>% 
+  janitor::clean_names()
+
+ mulherPOP_RIP %>% 
+   tidyr::pivot_longer(cols = "x2018":"x2024", names_to = "ano_Mulherpop", values_to = "count")
+```
+
+```{r}
+#| eval: false
+
+library(foreign)
+
+ftp_url <- "ftp://ftp.datasus.gov.br/dissemin/publicos/IBGE/DOC/populacao.pdf"
+destfile <- "populacao.pdf"
+download.file(ftp_url,  destfile, mode = "wb")
+ 
+# unzip(destfile, exdir = "dados_popsvs")
+# list.files("dados_popsvs")
+# pop2025 <- read.dbf("dados_popsvs/POP25.dbf", as.is = TRUE)
+
+ftp_url <- "ftp://ftp.datasus.gov.br/dissemin/publicos/IBGE/POPSVS/POPSBR24.zip"
+destfile <- "POPSBR24.zip"
+download.file(ftp_url,  destfile, mode = "wb")
+unzip(destfile, exdir = "dados_popsvs")
+list.files("dados_popsvs")
+pop2024 <- read.dbf("dados_popsvs/POP24.dbf", as.is = TRUE)
+
+ftp_url <- "ftp://ftp.datasus.gov.br/dissemin/publicos/IBGE/POPSVS/POPSBR23.zip"
+destfile <- "POPSBR23.zip"
+download.file(ftp_url,  destfile, mode = "wb")
+unzip(destfile, exdir = "dados_popsvs")
+list.files("dados_popsvs")
+pop2023 <- read.dbf("dados_popsvs/POP23.dbf", as.is = TRUE)
+
+ftp_url <- "ftp://ftp.datasus.gov.br/dissemin/publicos/IBGE/POPSVS/POPSBR23.zip"
+destfile <- "POPSBR23.zip"
+download.file(ftp_url,  destfile, mode = "wb")
+unzip(destfile, exdir = "dados_popsvs")
+list.files("dados_popsvs")
+pop2023 <- read.dbf("dados_popsvs/POP23.dbf", as.is = TRUE)
+
+ftp_url <- "ftp://ftp.datasus.gov.br/dissemin/publicos/IBGE/POPSVS/POPSBR22.zip"
+destfile <- "POPSBR22.zip"
+download.file(ftp_url,  destfile, mode = "wb")
+unzip(destfile, exdir = "dados_popsvs")
+list.files("dados_popsvs")
+pop2022 <- read.dbf("dados_popsvs/POP22.dbf", as.is = TRUE)
+
+ftp_url <- "ftp://ftp.datasus.gov.br/dissemin/publicos/IBGE/POPSVS/POPSBR21.zip"
+destfile <- "POPSBR21.zip"
+download.file(ftp_url,  destfile, mode = "wb")
+unzip(destfile, exdir = "dados_popsvs")
+list.files("dados_popsvs")
+pop2021 <- read.dbf("dados_popsvs/POP21.dbf", as.is = TRUE)
+
+ftp_url <- "ftp://ftp.datasus.gov.br/dissemin/publicos/IBGE/POPSVS/POPSBR20.zip"
+destfile <- "POPSBR20.zip"
+download.file(ftp_url,  destfile, mode = "wb")
+unzip(destfile, exdir = "dados_popsvs")
+list.files("dados_popsvs")
+pop2020 <- read.dbf("dados_popsvs/POP20.dbf", as.is = TRUE)
+
+ftp_url <- "ftp://ftp.datasus.gov.br/dissemin/publicos/IBGE/POPSVS/POPSBR19.zip"
+destfile <- "POPSBR19.zip"
+download.file(ftp_url,  destfile, mode = "wb")
+unzip(destfile, exdir = "dados_popsvs")
+list.files("dados_popsvs")
+pop2019 <- read.dbf("dados_popsvs/POP19.dbf", as.is = TRUE)
+
+ftp_url <- "ftp://ftp.datasus.gov.br/dissemin/publicos/IBGE/POPSVS/POPSBR18.zip"
+destfile <- "POPSBR18.zip"
+download.file(ftp_url,  destfile, mode = "wb")
+unzip(destfile, exdir = "dados_popsvs")
+list.files("dados_popsvs")
+pop2018 <- read.dbf("dados_popsvs/POP18.dbf", as.is = TRUE)
+
+
+popMulher <- pop2018 %>% 
+  dplyr::bind_rows(pop2019) %>% 
+  dplyr::bind_rows(pop2020) %>%
+  dplyr::bind_rows(pop2021) %>%
+  dplyr::bind_rows(pop2022) %>%
+  dplyr::bind_rows(pop2023) %>%
+  dplyr::bind_rows(pop2023) %>% 
+  dplyr::bind_rows(pop2024) %>%
+  dplyr::mutate(cod = stringr::str_extract(COD_MUN, "\\d{2}" )) %>% 
+  dplyr::filter(SEXO == 2 & cod == 43 & IDADE >= "018") %>% 
+  dplyr::group_by(COD_MUN, ANO) %>% 
+  dplyr::summarise(populacao_muni = sum(POP, na.rm = TRUE)) %>% 
+  dplyr::ungroup()
+
+save(popMulher, file = "C:/Users/fernanda-romeiro/OneDrive - Governo do Estado do Rio Grande do Sul/Projetos/MVIOL/MVIOL_project/dados_popsvs/popMulher.RData")
+
+```
+
+```{r}
+#| eval: false
+dadosSINAN_Total <- read_excel("Dados/SINAN/dadosSINAN_Total.xlsx") %>% 
+  dplyr::filter(nova_idade >= 18) %>% 
+  dplyr::mutate(dplyr::across(c(VIOL_FISIC, VIOL_PSICO, VIOL_TORT, VIOL_SEXU, VIOL_FINAN), base::as.numeric),
+                
+                VIOL_FISIC_cat = dplyr::case_when(VIOL_FISIC != 1 ~ 0,
+                                              .default = VIOL_FISIC),
+                VIOL_PSICO_cat = dplyr::case_when(VIOL_PSICO != 1 ~ 0,
+                                              .default = VIOL_PSICO),
+                VIOL_TORT_cat = dplyr::case_when(VIOL_TORT != 1 ~ 0,
+                                              .default = VIOL_TORT),
+                VIOL_SEXU_cat = dplyr::case_when(VIOL_SEXU != 1 ~ 0,
+                                              .default = VIOL_SEXU),
+                VIOL_FINAN_cat = dplyr::case_when(VIOL_FINAN != 1 ~ 0,
+                                              .default = VIOL_FINAN),
+                
+                somaVIOL = base::ifelse(VIOL_FISIC_cat == 1 | VIOL_PSICO_cat == 1 | VIOL_TORT_cat == 1 | VIOL_SEXU_cat == 1 | VIOL_FINAN_cat == 1,
+                                        VIOL_FISIC_cat + VIOL_PSICO_cat + VIOL_TORT_cat + VIOL_SEXU_cat + VIOL_FINAN_cat, "NA"),
+                
+                dplyr::across(c(AG_FORCA, AG_ENFOR, AG_OBJETO, AG_CORTE, AG_QUENTE, AG_ENVEN, AG_FOGO, AG_AMEACA), base::as.numeric),
+                
+                AG_FORCA_cat = dplyr::case_when(AG_FORCA != 1 ~ 0,
+                                              .default = AG_FORCA),
+                AG_ENFOR_cat = dplyr::case_when(AG_ENFOR != 1 ~ 0,
+                                              .default = AG_ENFOR),
+                AG_OBJETO_cat = dplyr::case_when(AG_OBJETO != 1 ~ 0,
+                                              .default = AG_OBJETO),
+                AG_CORTE_cat = dplyr::case_when(AG_CORTE != 1 ~ 0,
+                                              .default = AG_CORTE),
+                AG_QUENTE_cat = dplyr::case_when(AG_QUENTE != 1 ~ 0,
+                                              .default = AG_QUENTE),
+                AG_ENVEN_cat = dplyr::case_when(AG_ENVEN != 1 ~ 0,
+                                              .default = AG_ENVEN),
+                AG_FOGO_cat = dplyr::case_when(AG_FOGO != 1 ~ 0,
+                                              .default = AG_FOGO),
+                AG_AMEACA_cat = dplyr::case_when(AG_AMEACA != 1 ~ 0,
+                                              .default = AG_AMEACA),
+                
+                somaAGR = base::ifelse(AG_FORCA_cat == 1 | AG_ENFOR_cat == 1 | AG_OBJETO_cat == 1 | AG_CORTE_cat == 1 | AG_QUENTE_cat == 1 |
+                                       AG_ENVEN_cat == 1 | AG_FOGO_cat == 1 | AG_AMEACA_cat== 1,
+                                       AG_FORCA_cat + AG_ENFOR_cat + AG_OBJETO_cat + AG_CORTE_cat + AG_QUENTE_cat + AG_ENVEN_cat + AG_FOGO_cat +
+                                       AG_AMEACA_cat, "NA"),
+                
+                dplyr::across(c(somaAGR, somaVIOL), base::as.numeric)) 
+
+save(dadosSINAN_Total, file = "C:/Users/fernanda-romeiro/OneDrive - Governo do Estado do Rio Grande do Sul/Projetos/MVIOL/MVIOL_project/dados_popsvs/dadosSINAN_Total.RData")
+```
+
+```{r}
+load("C:/Users/fernanda-romeiro/OneDrive - Governo do Estado do Rio Grande do Sul/Projetos/MVIOL/MVIOL_project/dados_popsvs/popMulher.RData")
+
+load("C:/Users/fernanda-romeiro/OneDrive - Governo do Estado do Rio Grande do Sul/Projetos/MVIOL/MVIOL_project/dados_popsvs/dadosSINAN_Total.RData")
+
+MUNICIPIOS <- read_excel("C:/Users/fernanda-romeiro/OneDrive - Governo do Estado do Rio Grande do Sul/Projetos/MVIOL/MVIOL_project/Dados/ShapeRS/MUNICIPIOS.xlsx")
+
+MUNICIPIOS_MP <- read_excel("Dados/ShapeRS/MUNICIPIOS_MP.xlsx")
+```
+
+```{r}
+
+merge_1 <- dadosSINAN_Total %>% 
+  dplyr::select(codigo_ibge, somaVIOL, somaAGR, ID_UNIDADE, NU_IDADE_N, ano_not) %>% 
+  dplyr::group_by(codigo_ibge, ano_not) %>%
+  dplyr::summarise(somAGR_Total = sum(somaAGR, na.rm = TRUE),
+                   somaVIOL_Total = sum(somaVIOL, na.rm = TRUE)) 
+# %>% 
+#   dplyr::filter(codigo_ibge == "4300059")
+
+merge_2 <- popMulher %>% 
+  #dplyr::filter(COD_MUN == "4300059") %>% 
+  dplyr::left_join(MUNICIPIOS %>% 
+                     dplyr::mutate(`CODIGO IBGE` = as.character(`CODIGO IBGE`)),
+                   by = c("COD_MUN" = "CODIGO IBGE")) 
+
+
+merge <- merge_1 %>%
+  dplyr::mutate(codigo_ibge = as.character(codigo_ibge)) %>% 
+  dplyr::left_join(merge_2, by = c("codigo_ibge" = "COD_MUN", "ano_not" = "ANO")) %>% 
+  dplyr::mutate(indicadorAGR  = round(somAGR_Total/populacao_muni,4),
+                indicadorVIOL = round(somaVIOL_Total/populacao_muni,4)) %>% 
+  dplyr::select("MUNICÍPIO", "CODIGO IBGE_6D", codigo_ibge, ano_not, somAGR_Total, somaVIOL_Total,
+                populacao_muni, indicadorAGR, indicadorVIOL)  
+  
+  
+```
+
+```{r}
+load("C:/Users/fernanda-romeiro/OneDrive - Governo do Estado do Rio Grande do Sul/Projetos/MVIOL/MVIOL_project/dados_popsvs/popMulher.RData")
+
+popMulher_wider <- popMulher %>%
+  tidyr::pivot_wider(names_from = ANO, values_from = populacao_muni) %>% 
+  janitor::adorn_totals(c("col"))
+```
+
+```{r}
+shapefile <- st_read("C:/Users/fernanda-romeiro/OneDrive - Governo do Estado do Rio Grande do Sul/Projetos/MVIOL/MVIOL_project/Dados/ShapeRS/municipiors4326.shp")
+```
+
+# Dados: SINAN
+
+Para este banco de dados foi filtrado somente pacientes do gênero **FEMININO** e que a motivação de violência esteja relacionada com **SEXISMO**.
+
+Há as seguintes **violências**:
+
+-   Física
+-   Psicológica/ moral
+-   Tortura
+-   Sexual
+-   Tráfico de seres humanos (não entrou na soma)
+-   Financeira/econômico
+-   Negligencia/ abandono (não entrou na soma)
+-   Trabalho infantil (não entrou na soma)
+-   Intervenção legal (não entrou na soma)
+
+E como **meios de agressão**:
+
+-   Força corporal/espancamento
+-   Enforcamento
+-   Objeto contundente
+-   Objeto perfuro-cortante
+-   Substancia/objeto
+-   Envenenamento,Intoxicação
+-   Arma de fogo
+-   Ameaça
+
+Para melhor entendimento foi feito a soma das violências e agressões separadas, agrupadas por Município e de todos os anos (2018 à 2024).
+
+Veja o ranking com base no número de pacientes que procuraram atendimento a partir de alguma violência e/ou agressão motivada pelo sexismo na tabela abaixo.
+
+# por Município
+
+## Tabela
+
+A tabela abaixo aborda o número total de atendimentos em cada município entre 2018 e 2024:
+
+```{r}
+tableMuni_SINAN <- dadosSINAN_Total %>% 
+  dplyr::filter(nova_idade >= 18) %>% 
+  dplyr::group_by(municipio) %>% 
+  dplyr::count()
+
+reactable(tableMuni_SINAN, filterable = TRUE, searchable = TRUE, showSortable = TRUE, minRows = 10)
+```
+
+# Indicador por atendimento
+
+Em relação as Violências Psicológicas (**84%**) e Financeira (**74%**), foi verificado que ambas estão altamente correlacionadas a **Agressão por ameaça** e, por isso, não as retirei do indicador.
+
+::: panel-tabset
+## Tabela
+
+```{r}
+options(scipen=999)
+
+tableMuni_IND <- tableMuni_SINAN %>% 
+  dplyr::rename("n_atendimentos" = n) %>% 
+  dplyr::mutate(municipio = dplyr::case_when(#municipio == "Xangri-lá" ~ "Xangri-Lá",
+                                             municipio == "Restinga Seca" ~ "Restinga Sêca",
+                                             .default = municipio)) %>% 
+  dplyr::left_join(MUNICIPIOS_MP %>% 
+                     dplyr::select(municipio, codigo_ibge_6d, codigo_ibge), by = c("municipio" = "municipio")) %>%
+  dplyr::left_join(popMulher_wider %>% 
+                     dplyr::select(COD_MUN, Total) %>% 
+                     dplyr::mutate(COD_MUN = base::as.double(COD_MUN)), by = c("codigo_ibge" = "COD_MUN")) %>% 
+  dplyr::group_by(codigo_ibge) %>% 
+  dplyr::mutate(indicador = n_atendimentos/Total) %>% 
+  dplyr::ungroup() %>% 
+  dplyr::mutate(municipio = dplyr::case_when(municipio == "Xangri-lá" ~ "Xangri-Lá",
+                                             municipio == "Restinga Seca" ~ "Restinga Sêca",
+                                             .default = municipio)) 
+
+```
+
+```{r}
+tableMuni_IND %>% 
+  dplyr::select(municipio, n_atendimentos, indicador) %>% 
+  reactable(filterable = TRUE, searchable = TRUE, showSortable = TRUE, minRows = 10)
+```
+
+## Mapa
+
+```{r}
+tableMuni_INDMAPA <- shapefile  %>% 
+  dplyr::left_join(tableMuni_IND, by = c("CODIBGE" = "codigo_ibge" ))
+```
+
+```{r}
+
+library(leaflet)
+
+leaflet(tableMuni_INDMAPA) %>%
+  addTiles() %>%  # Adiciona o mapa base padrão OpenStreetMap
+  addPolygons(
+    fillColor = ~colorNumeric(
+      palette = c("mistyrose", "deeppink3"),
+      domain = tableMuni_INDMAPA$indicador
+    )(indicador),
+    weight = 1,
+    opacity = 1,
+    color = "white",
+    dashArray = "3",
+    fillOpacity = 0.7,
+    highlightOptions = highlightOptions(
+      weight = 2,
+      color = "#666",
+      dashArray = "",
+      fillOpacity = 0.7,
+      bringToFront = TRUE
+    ),
+    label = ~paste(
+      "Município:", MUNICIPIO, "<br/>",
+      "Indicador Número de Atendimentos:",
+      format(indicador, scientific = FALSE, big.mark = ".", decimal.mark = ",")
+    ) %>% lapply(htmltools::HTML),
+    labelOptions = labelOptions(
+      style = list("font-weight" = "normal", padding = "3px 8px"),
+      textsize = "13px",
+      direction = "auto"
+    )
+  ) %>%
+  addLegend(
+    pal = colorNumeric(
+      palette = c("mistyrose", "deeppink3"),
+      domain = tableMuni_INDMAPA$indicador
+    ),
+    values = tableMuni_INDMAPA$indicador,
+    opacity = 0.7,
+    title = "Número de Atendimentos",
+    position = "bottomright",
+    labFormat = labelFormat(big.mark = ".")
+  )
+```
+:::
+
+De `r dim(dadosSINAN_Total)[[1]]`, somente `r table(dadosSINAN_Total$DELEG_MULH, useNA = "always")[[1]]` tiveram encaminhamento para a Delegacia de atendimento à mulher. Isso corresponde a `r round((table(dadosSINAN_Total$DELEG_MULH, useNA = "always")[[1]]/21974)*100,2)` dos atendimentos. Quando o encaminhamento é feito para outras delegacias, somente `r round((table(dadosSINAN_Total$DELEG_MULH, dadosSINAN_Total$DELEG, useNA = "always")[[1]]/table(dadosSINAN_Total$DELEG, useNA = "always")[[1]])*100,2)` foram para a Delegacia de atendimento à mulher.
+
+Os municípios que, de alguma forma, encaminharam o atendimento a uma Delegacia de atendimento à Mulher foram:
+
+```{r}
+tableDeleg <- dadosSINAN_Total %>% 
+  dplyr::filter(DELEG_MULH == 1) %>%
+  dplyr::group_by(municipio) %>% 
+  dplyr::count()
+
+reactable(tableDeleg, filterable = TRUE, searchable = TRUE, showSortable = TRUE, minRows = 10)
+```
+
+### por Ano
+
+```{r}
+tableMuni_Ano <- dadosSINAN_Total %>%
+  dplyr::filter(nova_idade >= 18) %>%
+  dplyr::select(nova_idade, municipio, ano_not) %>% 
+  dplyr::group_by(municipio, ano_not) %>% 
+  dplyr::summarise(n = n()) %>% 
+  tidyr::pivot_wider(names_from = ano_not, values_from = n) %>% 
+  dplyr::relocate("municipio", "2018", "2019","2020", "2021","2022", "2023","2024")
+
+reactable(tableMuni_Ano, filterable = TRUE, searchable = TRUE, showSortable = TRUE, minRows = 10)
+```
+
+## Gráfico
+
+```{r}
+graf1 <- ggplot(dadosSINAN_Total) +
+ aes(x = ano_not, group = municipio) +
+ geom_bar(fill = "#112446") +
+ theme_minimal()
+
+plotly::ggplotly(graf1)
+```
+
+# por Agressão
+
+## Tabela
+
+A tabela abaixo aborda o número total de **agressões** em cada município entre 2018 e 2024:
+
+```{r}
+tableAGR_1 <- merge %>%
+  dplyr::select(MUNICÍPIO, somAGR_Total) %>% 
+  dplyr::group_by(MUNICÍPIO) %>%
+  dplyr::summarise(n = sum(somAGR_Total, na.rm = TRUE))
+
+reactable(tableAGR_1, filterable = TRUE, searchable = TRUE, showSortable = TRUE, minRows = 10)
+
+```
+
+### por Ano
+
+```{r}
+tableAGR_2_ANO <- merge %>%
+  dplyr::select(MUNICÍPIO, ano_not, somAGR_Total) %>% 
+  dplyr::group_by(MUNICÍPIO, ano_not) %>% 
+  dplyr::summarise(n = sum(somAGR_Total, na.rm = TRUE)) %>% 
+  tidyr::pivot_wider(names_from = ano_not, values_from = n) %>% 
+  dplyr::relocate("MUNICÍPIO", "2018", "2019","2020", "2021","2022", "2023","2024")
+
+reactable(tableAGR_2_ANO, filterable = TRUE, searchable = TRUE, showSortable = TRUE, minRows = 10)
+```
+
+## Gráfico
+
+```{r}
+
+graf2 <- merge %>%
+  dplyr::group_by(ano_not) %>%
+  dplyr::mutate(soma = sum(somAGR_Total, na.rm = TRUE)) %>% 
+ggplot() +
+ aes(x = ano_not, y = soma) +
+ geom_col(fill = "#112446") +
+ #geom_line(colour = "#112446") +
+ theme_minimal()
+
+plotly::ggplotly(graf2)
+```
+
+# por Violência
+
+## Tabela
+
+A tabela abaixo aborda o número total de **violências** em cada município entre 2018 e 2024:
+
+```{r}
+tableVIOL_1 <- merge %>%
+  dplyr::select(MUNICÍPIO, somaVIOL_Total) %>% 
+  dplyr::group_by(MUNICÍPIO) %>%
+  dplyr::summarise(n = sum(somaVIOL_Total, na.rm = TRUE))
+
+reactable(tableVIOL_1, filterable = TRUE, searchable = TRUE, showSortable = TRUE, minRows = 10)
+
+```
+
+### por Ano
+
+```{r}
+tableVIOL_2_ANO <- merge %>%
+  dplyr::select(MUNICÍPIO, ano_not, somaVIOL_Total) %>% 
+  dplyr::group_by(MUNICÍPIO, ano_not) %>% 
+  dplyr::summarise(n = sum(somaVIOL_Total, na.rm = TRUE)) %>% 
+  tidyr::pivot_wider(names_from = ano_not, values_from = n) %>% 
+  dplyr::relocate("MUNICÍPIO", "2018", "2019","2020", "2021","2022", "2023","2024")
+
+reactable(tableVIOL_2_ANO, filterable = TRUE, searchable = TRUE, showSortable = TRUE, minRows = 10)
+```
+
+## Gráfico
+
+```{r}
+
+graf2 <- merge %>%
+  dplyr::group_by(ano_not) %>%
+  dplyr::mutate(soma = sum(somaVIOL_Total, na.rm = TRUE)) %>% 
+ggplot() +
+ aes(x = ano_not, y = soma) +
+ geom_col(fill = "#112446") +
+ #geom_line(colour = "#112446") +
+ theme_minimal()
+
+plotly::ggplotly(graf2)
+```
+
+# Mapas
+
+Os indicadores construídos foram feitos através da soma de agressões e violências em TODOS os anos (2018 a 2024). Como denominador foi utilizado o número da população de mulheres de cada município maiores de 18 anos.
+
+Abaixo tabela com os indicadores de **agressão** em todos os anos. **É possível identificar minímo e máximo manipulando as setas.**
+
+```{r}
+
+tableIndicadores_AGR <- merge %>%
+  dplyr::select(MUNICÍPIO, indicadorAGR, ano_not) %>% 
+  #dplyr::group_by(MUNICÍPIO, ano_not) %>%
+  tidyr::pivot_wider(names_from = ano_not, values_from = indicadorAGR) %>% 
+  dplyr::relocate("MUNICÍPIO", "2018", "2019","2020", "2021","2022", "2023","2024")
+
+reactable(tableIndicadores_AGR, filterable = TRUE, searchable = TRUE, showSortable = TRUE, minRows = 10)
+
+```
+
+Abaixo tabela com os indicadores de **violência** em todos os anos. **É possível identificar minímo e máximo manipulando as setas.**
+
+```{r}
+
+tableIndicadores_VIOL <- merge %>%
+  dplyr::select(MUNICÍPIO, indicadorVIOL, ano_not) %>% 
+  #dplyr::group_by(MUNICÍPIO, ano_not) %>%
+  tidyr::pivot_wider(names_from = ano_not, values_from = indicadorVIOL) %>% 
+  dplyr::relocate("MUNICÍPIO", "2018", "2019","2020", "2021","2022", "2023","2024")
+
+reactable(tableIndicadores_VIOL, filterable = TRUE, searchable = TRUE, showSortable = TRUE, minRows = 10)
+
+```
+
+## Indicador de Agressão por População
+
+```{r}
+#| warning: false
+
+# Carregar municípios do RS (código UF = 43)
+# municipios_rs <- read_municipality(code_muni = 43, year = 2022)
+# ggplot(municipios_rs) + geom_sf()
+
+merge_Mapa <- shapefile %>% 
+  dplyr::mutate(CODIBGE = base::as.character(CODIBGE)) %>% 
+  dplyr::left_join(merge %>% 
+                     dplyr::select(codigo_ibge, ano_not, somAGR_Total,
+                                   somaVIOL_Total, populacao_muni, indicadorAGR, indicadorVIOL),
+                   by = c("CODIBGE" = "codigo_ibge"))
+```
+
+```{r}
+library(ggplot2)
+ggplot(merge_Mapa) +
+  geom_sf(aes(fill = indicadorAGR)) +
+  scale_fill_gradient(
+    low = "mistyrose",
+    high = "deeppink3",
+    name = "Indicador Agressões"
+  ) +
+  coord_sf() +
+  labs(title = "Mapa do Indicador Agressões") +
+  theme_void() +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 14, face = "bold"),
+    legend.position = "right",
+    panel.grid.major = element_line(color = "grey80", linetype = "dashed")
+  )
+```
+
+### Interativo
+
+```{r}
+library(leaflet)
+
+leaflet(merge_Mapa) %>%
+  addTiles() %>%  # Adiciona o mapa base padrão OpenStreetMap
+  addPolygons(
+    fillColor = ~colorNumeric(
+      palette = c("mistyrose", "deeppink3"),
+      domain = merge_Mapa$indicadorAGR
+    )(indicadorAGR),
+    weight = 1,
+    opacity = 1,
+    color = "white",
+    dashArray = "3",
+    fillOpacity = 0.7,
+    highlightOptions = highlightOptions(
+      weight = 2,
+      color = "#666",
+      dashArray = "",
+      fillOpacity = 0.7,
+      bringToFront = TRUE
+    ),
+    label = ~paste(
+      "Município:", MUNICIPIO, "<br/>",
+      "Indicador Agressões:",
+      format(indicadorAGR, scientific = FALSE, big.mark = ".", decimal.mark = ",")
+    ) %>% lapply(htmltools::HTML),
+    labelOptions = labelOptions(
+      style = list("font-weight" = "normal", padding = "3px 8px"),
+      textsize = "13px",
+      direction = "auto"
+    )
+  ) %>%
+  addLegend(
+    pal = colorNumeric(
+      palette = c("mistyrose", "deeppink3"),
+      domain = merge_Mapa$indicadorAGR
+    ),
+    values = merge_Mapa$indicadorAGR,
+    opacity = 0.7,
+    title = "Indicador Agressões",
+    position = "bottomright",
+    labFormat = labelFormat(big.mark = ".")
+  )
+
+```
+
+## Indicador de Violência por população
+
+```{r}
+library(ggplot2)
+ggplot(merge_Mapa) +
+  geom_sf(aes(fill = indicadorVIOL)) +
+  scale_fill_gradient(
+    low = "mistyrose",
+    high = "deeppink3",
+    name = "Indicador Violências"
+  ) +
+  coord_sf() +
+  labs(title = "Mapa do Indicador Violências") +
+  theme_void() +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 14, face = "bold"),
+    legend.position = "right",
+    panel.grid.major = element_line(color = "grey80", linetype = "dashed")
+  )
+```
+
+### Interativo
+
+```{r}
+library(leaflet)
+
+leaflet(merge_Mapa) %>%
+  addTiles() %>%  # Adiciona o mapa base padrão OpenStreetMap
+  addPolygons(
+    fillColor = ~colorNumeric(
+      palette = c("mistyrose", "deeppink3"),
+      domain = merge_Mapa$indicadorVIOL
+    )(indicadorVIOL),
+    weight = 1,
+    opacity = 1,
+    color = "white",
+    dashArray = "3",
+    fillOpacity = 0.7,
+    highlightOptions = highlightOptions(
+      weight = 2,
+      color = "#666",
+      dashArray = "",
+      fillOpacity = 0.7,
+      bringToFront = TRUE
+    ),
+    label = ~paste(
+      "Município:", MUNICIPIO, "<br/>",
+      "Indicador Agressões:",
+      format(indicadorVIOL, scientific = FALSE, big.mark = ".", decimal.mark = ",")
+    ) %>% lapply(htmltools::HTML),
+    labelOptions = labelOptions(
+      style = list("font-weight" = "normal", padding = "3px 8px"),
+      textsize = "13px",
+      direction = "auto"
+    )
+  ) %>%
+  addLegend(
+    pal = colorNumeric(
+      palette = c("mistyrose", "deeppink3"),
+      domain = merge_Mapa$indicadorVIOL
+    ),
+    values = merge_Mapa$indicadorVIOL,
+    opacity = 0.7,
+    title = "Indicador Agressões",
+    position = "bottomright",
+    labFormat = labelFormat(big.mark = ".")
+  )
+
+```
+
+```{r}
+# library(writexl)
+# sheets <- list("Municipios"        = tableMuni, 
+#                "Delegacias"            = tableDeleg,
+#                "Municipios_ano" = tableMuni_Ano,
+#                "Agressao" = tableAGR_1,
+#                "Agressao_ano"    = tableAGR_2_ANO,
+#                "Violencia"   = tableVIOL_1,
+#                "Violencia_ano"   = tableVIOL_2_ANO,
+#                "Indicador Agressao"   = tableIndicadores_AGR,
+#                "Indicador Violencia"   = tableIndicadores_VIOL)
+# 
+# writexl::write_xlsx(sheets, 
+#            paste0("C:/Users/fernanda-romeiro/OneDrive - Governo do Estado do Rio Grande do Sul/Projetos/MVIOL/MVIOL_project/dados_popsvs/tabelas_VIOL.xlsx"))
+```
+
+# Dados: Lei Maria da Penha
+
+O banco de dados disponível na Secretaria de Segurança Pública tem o marco temporal de 2012 á Abril de 2025. Os números absolutos disponíveis por município são:
+
+-   Feminicídio **Tentado**
+-   Feminicídio **Consumado**
+-   Ameaça
+-   Estupro
+-   Lesão Corporal (não há registros do que seja considerado lesão corporal)
+
+::: panel-tabset
+## Valor absoluto
+
+```{r}
+
+tabMVIOL_1 <-  read_excel("Dados/SSP_LEIPENHA/dadosTotais_LEIPENHA.xlsx") %>% 
+  dplyr::group_by(municipio) %>% 
+  dplyr::mutate(Total_Tentado    = base::sum(total_2018.tentado, total_2019.tentado, total_2020.tentado, total_2021.tentado,                                                    total_2022.tentado, total_2023.tentado, total_2024.tentado, total_2025.tentado,
+                                             na.rm = TRUE),
+                Total_Consumado  = base::sum(total_2018.consumado, total_2019.consumado, total_2020.consumado,
+                                             total_2021.consumado, total_2022.consumado, total_2023.consumado,
+                                             total_2024.consumado, total_2025.consumado,
+                                             na.rm = TRUE),
+                Total_Ameaca     = base::sum(total_2018.ameaca,total_2019.ameaca, total_2020.ameaca, total_2021.ameaca,                                                          total_2022.ameaca, total_2023.ameaca, total_2024.ameaca, total_2025.ameaca,
+                                             na.rm = TRUE),
+                Total_Estupro    = base::sum(total_2018.Estupro, total_2019.Estupro, total_2020.Estupro, total_2021.Estupro,                                                    total_2022.Estupro, total_2023.Estupro, total_2024.Estupro, total_2025.Estupro,
+                                             na.rm = TRUE),
+                Total_LCorporal  = base::sum(total_2018.LesaoCorporal, total_2019.LesaoCorporal, total_2020.LesaoCorporal,
+                                             total_2021.LesaoCorporal, total_2021.LesaoCorporal, total_2022.LesaoCorporal,                                                      total_2018.LesaoCorporal, total_2025.LesaoCorporal,
+                                             na.rm = TRUE)) %>% 
+  dplyr::select(municipio, regiao_funcional,  Total_Tentado:Total_LCorporal)
+
+reactable::reactable(tabMVIOL_1, filterable = TRUE, searchable = TRUE, showSortable = TRUE, minRows = 10)
+
+```
+
+## Indicador
+
+**Lembrando que o indicador é baseado entre 2018 à 2024 devido a população e é calculado por município.**
+
+```{r}
+options(scipen=999)
+
+tabMVIOL_2 <-  read_excel("Dados/SSP_LEIPENHA/dadosTotais_LEIPENHA.xlsx") %>%
+  dplyr::mutate(codigo_ibge =  base::as.character(codigo_ibge)) %>% 
+  dplyr::left_join(popMulher_wider, by = c("codigo_ibge" = "COD_MUN")) %>% 
+  dplyr::group_by(municipio) %>% 
+  dplyr::mutate(Indicador_Tentado    = base::sum(total_2018.tentado, total_2019.tentado, total_2020.tentado, total_2021.tentado,                                                    total_2022.tentado, total_2023.tentado, total_2024.tentado, 
+                                             na.rm = TRUE)/Total,
+                Indicador_Consumado  = base::sum(total_2018.consumado, total_2019.consumado, total_2020.consumado,
+                                             total_2021.consumado, total_2022.consumado, total_2023.consumado,
+                                             total_2024.consumado, 
+                                             na.rm = TRUE)/Total,
+                Indicador_Ameaca     = base::sum(total_2018.ameaca,total_2019.ameaca, total_2020.ameaca, total_2021.ameaca,                                                          total_2022.ameaca, total_2023.ameaca, total_2024.ameaca, 
+                                             na.rm = TRUE)/Total,
+                Indicador_Estupro    = base::sum(total_2018.Estupro, total_2019.Estupro, total_2020.Estupro, total_2021.Estupro,                                                    total_2022.Estupro, total_2023.Estupro, total_2024.Estupro, 
+                                             na.rm = TRUE)/Total,
+                Indicador_LCorporal  = base::sum(total_2018.LesaoCorporal, total_2019.LesaoCorporal, total_2020.LesaoCorporal,
+                                             total_2021.LesaoCorporal, total_2021.LesaoCorporal, total_2022.LesaoCorporal,                                                      total_2018.LesaoCorporal, 
+                                             na.rm = TRUE)/Total) %>% 
+  dplyr::select(codigo_ibge, municipio, regiao_funcional, Indicador_Tentado:Indicador_LCorporal)
+
+reactable::reactable(tabMVIOL_2, filterable = TRUE, searchable = TRUE, showSortable = TRUE, minRows = 10)
+```
+:::
+
+# Mapas
+
+## Feminicídio **Tentado**
+
+```{r}
+merge_MapaLEIPENHA <- shapefile %>% 
+  dplyr::left_join(tabMVIOL_2 %>% 
+                     dplyr::mutate(municipio =  dplyr::case_when(municipio == "Restinga Seca" ~ "Restinga Sêca",
+                                                                 municipio == "Vespasiano Correa" ~ "Vespasiano Corrêa",
+                                                                 municipio == "Xangri-lá" ~ "Xangri-Lá",
+                                                                 .default = municipio)),
+                                   by = c("MUNICIPIO" = "municipio"))
+```
+
+```{r}
+
+library(leaflet)
+
+leaflet(merge_MapaLEIPENHA) %>%
+  addTiles() %>%  # Adiciona o mapa base padrão OpenStreetMap
+  addPolygons(
+    fillColor = ~colorNumeric(
+      palette = c("mistyrose", "deeppink3"),
+      domain = merge_MapaLEIPENHA$Indicador_Tentado
+    )(Indicador_Tentado),
+    weight = 1,
+    opacity = 1,
+    color = "white",
+    dashArray = "3",
+    fillOpacity = 0.7,
+    highlightOptions = highlightOptions(
+      weight = 2,
+      color = "#666",
+      dashArray = "",
+      fillOpacity = 0.7,
+      bringToFront = TRUE
+    ),
+    label = ~paste(
+      "Município:", MUNICIPIO, "<br/>",
+      "Indicador Feminicídio Tentado:",
+      format(Indicador_Tentado, scientific = FALSE, big.mark = ".", decimal.mark = ",")
+    ) %>% lapply(htmltools::HTML),
+    labelOptions = labelOptions(
+      style = list("font-weight" = "normal", padding = "3px 8px"),
+      textsize = "13px",
+      direction = "auto"
+    )
+  ) %>%
+  addLegend(
+    pal = colorNumeric(
+      palette = c("mistyrose", "deeppink3"),
+      domain = merge_MapaLEIPENHA$Indicador_Tentado
+    ),
+    values = merge_MapaLEIPENHA$Indicador_Tentado,
+    opacity = 0.7,
+    title = "Feminicídio Tentado",
+    position = "bottomright",
+    labFormat = labelFormat(big.mark = ".")
+  )
+```
+
+## Feminicídio **Consumado**
+
+```{r}
+
+library(leaflet)
+
+leaflet(merge_MapaLEIPENHA) %>%
+  addTiles() %>%  # Adiciona o mapa base padrão OpenStreetMap
+  addPolygons(
+    fillColor = ~colorNumeric(
+      palette = c("mistyrose", "deeppink3"),
+      domain = merge_MapaLEIPENHA$Indicador_Consumado
+    )(Indicador_Consumado),
+    weight = 1,
+    opacity = 1,
+    color = "white",
+    dashArray = "3",
+    fillOpacity = 0.7,
+    highlightOptions = highlightOptions(
+      weight = 2,
+      color = "#666",
+      dashArray = "",
+      fillOpacity = 0.7,
+      bringToFront = TRUE
+    ),
+    label = ~paste(
+      "Município:", MUNICIPIO, "<br/>",
+      "Indicador Feminicídio Tentado:",
+      format(Indicador_Consumado, scientific = FALSE, big.mark = ".", decimal.mark = ",")
+    ) %>% lapply(htmltools::HTML),
+    labelOptions = labelOptions(
+      style = list("font-weight" = "normal", padding = "3px 8px"),
+      textsize = "13px",
+      direction = "auto"
+    )
+  ) %>%
+  addLegend(
+    pal = colorNumeric(
+      palette = c("mistyrose", "deeppink3"),
+      domain = merge_MapaLEIPENHA$Indicador_Consumado
+    ),
+    values = merge_MapaLEIPENHA$Indicador_Consumado,
+    opacity = 0.7,
+    title = "Feminicídio Tentado",
+    position = "bottomright",
+    labFormat = labelFormat(big.mark = ".")
+  )
+```
+
+## Ameaça
+
+```{r}
+
+library(leaflet)
+
+leaflet(merge_MapaLEIPENHA) %>%
+  addTiles() %>%  # Adiciona o mapa base padrão OpenStreetMap
+  addPolygons(
+    fillColor = ~colorNumeric(
+      palette = c("mistyrose", "deeppink3"),
+      domain = merge_MapaLEIPENHA$Indicador_Ameaca
+    )(Indicador_Ameaca),
+    weight = 1,
+    opacity = 1,
+    color = "white",
+    dashArray = "3",
+    fillOpacity = 0.7,
+    highlightOptions = highlightOptions(
+      weight = 2,
+      color = "#666",
+      dashArray = "",
+      fillOpacity = 0.7,
+      bringToFront = TRUE
+    ),
+    label = ~paste(
+      "Município:", MUNICIPIO, "<br/>",
+      "Indicador Feminicídio Tentado:",
+      format(Indicador_Ameaca, scientific = FALSE, big.mark = ".", decimal.mark = ",")
+    ) %>% lapply(htmltools::HTML),
+    labelOptions = labelOptions(
+      style = list("font-weight" = "normal", padding = "3px 8px"),
+      textsize = "13px",
+      direction = "auto"
+    )
+  ) %>%
+  addLegend(
+    pal = colorNumeric(
+      palette = c("mistyrose", "deeppink3"),
+      domain = merge_MapaLEIPENHA$Indicador_Ameaca
+    ),
+    values = merge_MapaLEIPENHA$Indicador_Ameaca,
+    opacity = 0.7,
+    title = "Feminicídio Tentado",
+    position = "bottomright",
+    labFormat = labelFormat(big.mark = ".")
+  )
+```
+
+## Estupro
+
+```{r}
+
+library(leaflet)
+
+leaflet(merge_MapaLEIPENHA) %>%
+  addTiles() %>%  # Adiciona o mapa base padrão OpenStreetMap
+  addPolygons(
+    fillColor = ~colorNumeric(
+      palette = c("mistyrose", "deeppink3"),
+      domain = merge_MapaLEIPENHA$Indicador_Estupro
+    )(Indicador_Estupro),
+    weight = 1,
+    opacity = 1,
+    color = "white",
+    dashArray = "3",
+    fillOpacity = 0.7,
+    highlightOptions = highlightOptions(
+      weight = 2,
+      color = "#666",
+      dashArray = "",
+      fillOpacity = 0.7,
+      bringToFront = TRUE
+    ),
+    label = ~paste(
+      "Município:", MUNICIPIO, "<br/>",
+      "Indicador Feminicídio Tentado:",
+      format(Indicador_Estupro, scientific = FALSE, big.mark = ".", decimal.mark = ",")
+    ) %>% lapply(htmltools::HTML),
+    labelOptions = labelOptions(
+      style = list("font-weight" = "normal", padding = "3px 8px"),
+      textsize = "13px",
+      direction = "auto"
+    )
+  ) %>%
+  addLegend(
+    pal = colorNumeric(
+      palette = c("mistyrose", "deeppink3"),
+      domain = merge_MapaLEIPENHA$Indicador_Estupro
+    ),
+    values = merge_MapaLEIPENHA$Indicador_Estupro,
+    opacity = 0.7,
+    title = "Feminicídio Tentado",
+    position = "bottomright",
+    labFormat = labelFormat(big.mark = ".")
+  )
+```
+
+## Lesão Corporal (não há registros do que seja considerado lesão corporal)
+
+```{r}
+
+library(leaflet)
+
+leaflet(merge_MapaLEIPENHA) %>%
+  addTiles() %>%  # Adiciona o mapa base padrão OpenStreetMap
+  addPolygons(
+    fillColor = ~colorNumeric(
+      palette = c("mistyrose", "deeppink3"),
+      domain = merge_MapaLEIPENHA$Indicador_LCorporal
+    )(Indicador_LCorporal),
+    weight = 1,
+    opacity = 1,
+    color = "white",
+    dashArray = "3",
+    fillOpacity = 0.7,
+    highlightOptions = highlightOptions(
+      weight = 2,
+      color = "#666",
+      dashArray = "",
+      fillOpacity = 0.7,
+      bringToFront = TRUE
+    ),
+    label = ~paste(
+      "Município:", MUNICIPIO, "<br/>",
+      "Indicador Feminicídio Tentado:",
+      format(Indicador_LCorporal, scientific = FALSE, big.mark = ".", decimal.mark = ",")
+    ) %>% lapply(htmltools::HTML),
+    labelOptions = labelOptions(
+      style = list("font-weight" = "normal", padding = "3px 8px"),
+      textsize = "13px",
+      direction = "auto"
+    )
+  ) %>%
+  addLegend(
+    pal = colorNumeric(
+      palette = c("mistyrose", "deeppink3"),
+      domain = merge_MapaLEIPENHA$Indicador_LCorporal
+    ),
+    values = merge_MapaLEIPENHA$Indicador_LCorporal,
+    opacity = 0.7,
+    title = "Feminicídio Tentado",
+    position = "bottomright",
+    labFormat = labelFormat(big.mark = ".")
+  )
+```
+
+# Dados: Consórcios
+
+```{r}
+dadosConsorcio <- read_excel("Dados/Consorcio/Consórcios para Fernanda.xlsx") %>% 
+  janitor::clean_names() %>% 
+  dplyr::mutate(municipios = dplyr::case_when(municipios == "Passo Fundo*" ~ "Passo Fundo",
+                                              .default = municipios)) %>% 
+  dplyr::left_join(MUNICIPIOS_MP, by = c("cod_mun" = "codigo_ibge")) %>% 
+  dplyr::left_join(tableMuni_SINAN %>% 
+                     dplyr::rename("n_atendimentos" = n)
+                   , by = c("municipio" = "municipio")) %>% 
+  dplyr::left_join(tabMVIOL_1 %>% 
+                     dplyr::mutate(municipio = dplyr::case_when(municipio == "Restinga Seca" ~ "Restinga Sêca",
+                                                                municipio == "Vista Gaúcha" ~ "Vista gaúcha",
+                                                                municipio == "Miraguaí" ~ "Miraguai",
+                                                                municipio == "Santana do Livramento" ~ "Sant'Ana do Livramento",           	
+                                                                municipio == "Santo Antônio das Missões" ~ "Santo Antonio das Missões",
+                                                                municipio == "Vespasiano Correa" ~ "Vespasiano Corrêa",
+                                                                municipio == "Xangri-lá" ~ "Xangri‑lá",
+                                                                .default = municipio)),
+                   by = c("municipios" = "municipio"))
+  
+```
+
+## SINAN
+
+O número absoluto de atendimentos filtrado somente pacientes do gênero **FEMININO** e que a motivação de violência esteja relacionada com **SEXISMO** por **CONSÓRCIO** se encontra na tabela abaixo:
+
+```{r}
+dadosConsorcio_SINAN <- dadosConsorcio %>% 
+  dplyr::group_by(consorcio) %>% 
+  dplyr::summarise(n = sum(n_atendimentos, na.rm = TRUE))
+
+reactable::reactable(dadosConsorcio_SINAN, filterable = TRUE, searchable = TRUE, showSortable = TRUE, minRows = 10)
+```
+
+## Lei Maria da Penha
+
+```{r}
+dadosConsorcio_LMP <-  dadosConsorcio %>% 
+  dplyr::group_by(consorcio) %>% 
+  dplyr::summarise(Feminicidio_Tentado   = sum(Total_Tentado,   na.rm = TRUE),
+                   Feminicidio_Consumado = sum(Total_Consumado, na.rm = TRUE),
+                   Ameaca                = sum(Total_Ameaca,    na.rm = TRUE),
+                   Estupro               = sum(Total_Estupro,   na.rm = TRUE),
+                   LCorporal             = sum(Total_LCorporal, na.rm = TRUE)) 
+
+  reactable::reactable(dadosConsorcio_LMP, filterable = TRUE, searchable = TRUE, showSortable = TRUE, minRows = 10)
+```
+
+## Indicador
+
+```{r}
+dadosConsorcio_Indicador <- dadosConsorcio %>% 
+  dplyr::left_join(tableMuni_IND %>% 
+                     dplyr::select(codigo_ibge, indicador) %>% 
+                     dplyr::rename("indicador_SINAN" = indicador), by = c("cod_mun" = "codigo_ibge") ) %>% 
+  dplyr::left_join(tabMVIOL_2 %>% 
+                     dplyr::mutate(codigo_ibge = base::as.double(codigo_ibge)), by = c("cod_mun" = "codigo_ibge"))
+```
+
+```{r}
+sheets <- list("Maria da Penha"        = dadosConsorcio_LMP,
+              "SINAN"                 = dadosConsorcio_SINAN,
+             "Indicador"              = dadosConsorcio_Indicador)
+writexl::write_xlsx(sheets,
+           paste0("Dados/Consorcio/dadosConsorcio_N.xlsx"))
+```
+
+# Dados: Região funcional
+
+## SINAN
+
+O número absoluto de atendimentos filtrado somente pacientes do gênero **FEMININO** e que a motivação de violência esteja relacionada com **SEXISMO** por **REGIÃO FUNCIONAL** se encontra na tabela abaixo:
+
+```{r}
+dadosRFuncional_SINAN <- dadosSINAN_Total %>% 
+  dplyr::group_by(regiao_funcional) %>% 
+  dplyr::summarise(n_atendimentos = n()) %>% 
+  dplyr::mutate(ordem = rank(-n_atendimentos))
+
+reactable::reactable(dadosRFuncional_SINAN, filterable = TRUE, searchable = TRUE, showSortable = TRUE, minRows = 10)
+```
+
+## Lei Maria Penha
+
+```{r}
+dadosRFuncional_LMP <-  tabMVIOL_1 %>% 
+  dplyr::group_by(regiao_funcional) %>% 
+  dplyr::summarise(Feminicidio_Tentado   = sum(Total_Tentado,   na.rm = TRUE),
+                   Feminicidio_Consumado = sum(Total_Consumado, na.rm = TRUE),
+                   Ameaca                = sum(Total_Ameaca,    na.rm = TRUE),
+                   Estupro               = sum(Total_Estupro,   na.rm = TRUE),
+                   LCorporal             = sum(Total_LCorporal, na.rm = TRUE)) 
+
+reactable::reactable(dadosRFuncional_LMP, filterable = TRUE, searchable = TRUE, showSortable = TRUE, minRows = 10)
+```
+
+## Indicador
+
+Esse indicador foi calculado através da **REGIÃO FUNCIONAL**.
+
+**ATENÇÃO: como um exempo, veja que a região RF3 é a que possui um maior indicador de feminicidio tentado, mas a nível município, a região RF9 é a que concentra o maior número de municípios com altos indicador. Essa informação você consegue ter em Dados: Lei Maria da Penha - Indicador**
+
+```{r}
+
+options(scipen=999)
+
+tabRF_Indicador <-  read_excel("Dados/SSP_LEIPENHA/dadosTotais_LEIPENHA.xlsx") %>%
+  dplyr::mutate(codigo_ibge =  base::as.character(codigo_ibge)) %>% 
+  dplyr::left_join(popMulher_wider, by = c("codigo_ibge" = "COD_MUN")) %>% 
+  dplyr::group_by(regiao_funcional) %>% 
+  
+  dplyr::mutate(Indicador_Tentado    = base::sum(total_2018.tentado, total_2019.tentado, total_2020.tentado,
+                                                 total_2021.tentado, total_2022.tentado, total_2023.tentado,
+                                                 total_2024.tentado, 
+                                             na.rm = TRUE)/Total,
+                Indicador_Consumado  = base::sum(total_2018.consumado, total_2019.consumado, total_2020.consumado,
+                                                 total_2021.consumado, total_2022.consumado, total_2023.consumado,
+                                                 total_2024.consumado, 
+                                             na.rm = TRUE)/Total,
+                Indicador_Ameaca     = base::sum(total_2018.ameaca, total_2019.ameaca, total_2020.ameaca,
+                                                 total_2021.ameaca,total_2022.ameaca, total_2023.ameaca,
+                                                 total_2024.ameaca, 
+                                             na.rm = TRUE)/Total,
+                Indicador_Estupro    = base::sum(total_2018.Estupro, total_2019.Estupro, total_2020.Estupro,
+                                                 total_2021.Estupro, total_2022.Estupro, total_2023.Estupro,
+                                                 total_2024.Estupro, 
+                                             na.rm = TRUE)/Total,
+                Indicador_LCorporal  = base::sum(total_2018.LesaoCorporal, total_2019.LesaoCorporal, total_2020.LesaoCorporal,
+                                             total_2021.LesaoCorporal, total_2021.LesaoCorporal, total_2022.LesaoCorporal,total_2018.LesaoCorporal, 
+                                             na.rm = TRUE)/Total) %>% 
+  dplyr::select(codigo_ibge, municipio, regiao_funcional, Indicador_Tentado:Indicador_LCorporal)
+
+reactable::reactable(tabRF_Indicador, filterable = TRUE, searchable = TRUE, showSortable = TRUE, minRows = 10)
+```
+
+```{r}
+sheets <- list("Maria da Penha"        = dadosRFuncional_SINAN,
+               "SINAN"                 = dadosRFuncional_LMP,
+              "Indicador"              = tabRF_Indicador,
+              "Valor Absoluto - LMP"   = tabMVIOL_1)
+writexl::write_xlsx(sheets,
+           paste0("Dados/Regiao Funcional/dadosRFuncional_N.xlsx"))
+```
