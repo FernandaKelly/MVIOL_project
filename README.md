@@ -1,5 +1,6 @@
 📊 Segurança Pública e Violência Estrutural no Rio Grande do Sul (SINAN + Maria da Penha + PNAD)
-🧠 Pergunta de Pesquisa
+
+Pergunta de Pesquisa
 
 Será que as características da força de trabalho refletem na segurança — e especificamente no aumento da violência contra mulheres, pessoas pretas e pessoas LGBTQIA+ — no Estado do Rio Grande do Sul?
 Este projeto busca explorar essa conexão usando dados públicos e integrados de múltiplas fontes oficiais.
@@ -23,11 +24,13 @@ O governador Eduardo Leite enfatizou que essa secretaria representa um compromis
 Esses movimentos políticos serão correlacionados no estudo com tendências observadas em distintas bases de dados (SINAN, Maria da Penha, Lei 15610/SSP, PNAD, etc.).
 
 
-📥 Dados Utilizados
-🔎 Dados Públicos Integrados
-Fonte	Descrição
-INAN (Notificações de Violência)	Informações de notificações de violência (Tipo, local, perfil sociodemográfico)
-Base Maria da Penha (SSP RS)	Dados de ocorrências e registros de violência doméstica
-Lei 15610 (SSP RS)	Incidentes e indicadores de segurança pública no RS
-PNAD Contínua (IBGE)	Informações socioeconômicas detalhadas da população e força de trabalho
-PNAD – Segurança e Sensação de Segurança	Dimensão específica de percepção de segurança — 2021 e última PNAD disponível (2025 quando liberada)
+Dados Utilizados:
+
+| Fonte                                        | Descrição                                                                                            |
+| -------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| **INAN (Notificações de Violência)**         | Informações de notificações de violência (Tipo, local, perfil sociodemográfico)                      |
+| **Base Maria da Penha (SSP RS)**             | Dados de ocorrências e registros de violência doméstica                                              |
+| **Lei 15610 (SSP RS)**                       | Incidentes e indicadores de segurança pública no RS                                                  |
+| **PNAD Contínua (IBGE)**                     | Informações socioeconômicas detalhadas da população e força de trabalho                              |
+| **PNAD – Segurança e Sensação de Segurança** | Dimensão específica de percepção de segurança — 2021 e última PNAD disponível (2025 quando liberada) |
+
