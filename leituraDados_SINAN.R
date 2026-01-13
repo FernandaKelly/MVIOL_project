@@ -4,6 +4,7 @@
 
 install.packages("remotes")
 remotes::install_github("danicat/read.dbc")
+
 #install.packages("read.dbc", repos = "https://packagemanager.posit.co/cran/2024-07-05")
 library(read.dbc)
 library(tidyverse)
@@ -148,27 +149,31 @@ writexl::write_xlsx(dados_2025,
 # TRANSFORMAÇÃO DE DADOS
 #######################################################################################
 
-MUNICIPIOS <- read_excel("Dados/ShapeRS/MUNICIPIOS.xlsx") %>% 
+MUNICIPIOS <- read_excel("C:/Users/fernanda-romeiro/OneDrive - Governo do Estado do Rio Grande do Sul/Projetos/MVIOL/dados_completos/Dados/ShapeRS/MUNICIPIOS.xlsx") %>% 
   janitor::clean_names()
 
 ############
 
-dadosSINAN_2018 <- read_excel("Dados/SINAN/dadosSINAN_2018.xlsx") %>% 
-  dplyr::select(DT_NOTIFIC, DT_OCOR, SG_UF_NOT, ID_MUNICIP, ID_MN_RESI, ID_MN_OCOR, ID_UNIDADE, LOCAL_OCOR,
-                
-                NU_IDADE_N, CS_SEXO, ORIENT_SEX, IDENT_GEN, CS_GESTANT, CS_RACA, CS_ESCOL_N, SIT_CONJUG,
-                
-                OUT_VEZES, LES_AUTOP, VIOL_MOTIV, VIOL_FISIC, VIOL_PSICO, VIOL_TORT, 
-                VIOL_SEXU, SEX_ASSEDI, SEX_ESTUPR, SEX_PORNO, SEX_EXPLO, SEX_OUTRO, SEX_ESPEC,
-                
-                VIOL_TRAF, VIOL_FINAN, VIOL_NEGLI, VIOL_INFAN, VIOL_OUTR, VIOL_ESPEC,
-                AG_FORCA, AG_ENFOR, AG_OBJETO, AG_CORTE, AG_QUENTE, 
-                AG_ENVEN, AG_FOGO, AG_AMEACA, 
-                
-                AUTOR_SEXO,  
-                
-                ASSIST_SOC, REDE_EDUCA, ATEND_MULH, CONS_TUTEL, CONS_IDO, DIR_HUMAN, MPU, DELEG_CRIA, 
-                DELEG_MULH, DELEG, INFAN_JUV, DEFEN_PUBL) %>% 
+dadosSINAN_2018 <- read_excel("C:/Users/fernanda-romeiro/OneDrive - Governo do Estado do Rio Grande do Sul/Projetos/MVIOL/dados_completos/Dados/SINAN/dadosSINAN_2018.xlsx") %>% 
+  # dplyr::select(DT_NOTIFIC, DT_OCOR, SG_UF_NOT, ID_MUNICIP, ID_MN_RESI, ID_MN_OCOR, ID_UNIDADE, LOCAL_OCOR,
+  #               
+  #               NU_IDADE_N, CS_SEXO, ORIENT_SEX, IDENT_GEN, CS_GESTANT, CS_RACA, CS_ESCOL_N, SIT_CONJUG,
+  #               
+  #               OUT_VEZES, LES_AUTOP, VIOL_MOTIV, VIOL_FISIC, VIOL_PSICO, VIOL_TORT, 
+  #               VIOL_SEXU, SEX_ASSEDI, SEX_ESTUPR, SEX_PORNO, SEX_EXPLO, SEX_OUTRO, SEX_ESPEC,
+  #               
+  #               VIOL_TRAF, VIOL_FINAN, VIOL_NEGLI, VIOL_INFAN, VIOL_OUTR, VIOL_ESPEC,
+  #               AG_FORCA, AG_ENFOR, AG_OBJETO, AG_CORTE, AG_QUENTE, 
+  #               AG_ENVEN, AG_FOGO, AG_AMEACA, 
+  #               
+  #               AUTOR_SEXO,  
+  #               
+  #               ASSIST_SOC, REDE_EDUCA, ATEND_MULH, CONS_TUTEL, CONS_IDO, DIR_HUMAN, MPU, DELEG_CRIA, 
+  #               DELEG_MULH, DELEG, INFAN_JUV, DEFEN_PUBL,
+  #               
+  #               ID_OCUPA_N, LOCAL_OCOR, LOCAL_ESPE, NUM_ENVOLV, REL_PAI, REL_MAE,
+  #               REL_PAD, REL_MAD, REL_CONJ, REL_EXCON, REL_NAMO, REL_EXNAM, REL_FILHO, REL_IRMAO, REL_CONHEC,
+  #               REL_DESCO, REL_CUIDA, REL_PATRAO, REL_INST, REL_POL, REL_TRAB, REL_PROPRI, REL_OUTROS, REL_ESPEC, AUTOR_ALCO ) %>% 
   dplyr::mutate(
                 dplyr::across(c(ID_MUNICIP, ID_MN_RESI, ID_MN_OCOR), as.numeric),
                 DT_OCOR   = base::as.Date(DT_OCOR),
