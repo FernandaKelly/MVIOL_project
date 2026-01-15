@@ -28,7 +28,7 @@ Dados Utilizados:
 
 | Fonte                                        | Descrição                                                                                            |
 | -------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| **INAN (Notificações de Violência)**         | Informações de notificações de violência (Tipo, local, perfil sociodemográfico)                      |
+| **SINAN (Notificações de Violência)**         | Informações de notificações de violência (Tipo, local, perfil sociodemográfico)                      |
 | **Base Maria da Penha (SSP RS)**             | Dados de ocorrências e registros de violência doméstica                                              |
 | **Lei 15610 (SSP RS)**                       | Incidentes e indicadores de segurança pública no RS                                                  |
 | **PNAD Contínua (IBGE)**                     | Informações socioeconômicas detalhadas da população e força de trabalho                              |
