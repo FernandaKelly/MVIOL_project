@@ -4,6 +4,9 @@
 
 library(tidyverse)
 library(magrittr)
+library(readxl)
+library(here)
+here::set_here("C:/Users/fernanda-romeiro/OneDrive - Governo do Estado do Rio Grande do Sul/Projetos/MVIOL/dados_completos/Dados")
 
 #https://ssp.rs.gov.br/dados-abertos
 
@@ -11,7 +14,7 @@ library(magrittr)
 # ARTIGO 3°
 #######################################################################################
 
-dados2021_art3 <- read_excel("Dados/SSP_LEI15610/Mensal_Art3/25080213-dados-abertos-ocorrencias-2022-01-ajustado-publicacao.xls") %>% 
+dados2021_art3 <- read_excel(here("25080213-dados-abertos-ocorrencias-2022-01-ajustado-publicacao.xlsx")) %>% 
   
   janitor::clean_names() %>% 
   dplyr::select(sequencia:cor_vitima) %>% 
@@ -19,7 +22,7 @@ dados2021_art3 <- read_excel("Dados/SSP_LEI15610/Mensal_Art3/25080213-dados-aber
                            "^HOMICIDIO CULPOSO|^HOMICIDIO DOLOSO|^IMPORTUNACAO|^HOMOFOBIA|^ABUSO|^AMEACA|^ASSEDIO|^CONDUTO|^CONSTRANGIMENTO|^DIFAMACAO|^ESTUPRO|^EXPLORACAO|^FEMINICIDIO|^INJURIA|^LESAO CORPORAL GRAVE|^LESAO CORPORAL GRAVISSIMA|^LESAO CORPORAL LEVE|^LESAO CORPORAL SEGUIDA DE MORTE|^OUTROS CRIMES CONTRA A FAMILIA|^PERSEGUICAO|^SEQUESTRO|^VIOLACAO SEXUAL|^VIOLENCIA PSICOLOGICA"))
 
 
-dados2022_art3 <- read_excel("Dados/SSP_LEI15610/Mensal_Art3/SPJ_DADOS_ABERTOS_OCORRENCIAS_JAN_DEZ_2022.xls") %>% 
+dados2022_art3 <- read_excel("C:/Users/fernanda-romeiro/OneDrive - Governo do Estado do Rio Grande do Sul/Projetos/MVIOL/dados_completos/Dados/SSP_LEI15610/Mensal_Art3/SPJ_DADOS_ABERTOS_OCORRENCIAS_JAN_DEZ_2022.xls") %>% 
   
   janitor::clean_names() %>% 
   dplyr::select(sequencia:cor_vitima) %>% 
@@ -27,7 +30,7 @@ dados2022_art3 <- read_excel("Dados/SSP_LEI15610/Mensal_Art3/SPJ_DADOS_ABERTOS_O
                            "^HOMICIDIO CULPOSO|^HOMICIDIO DOLOSO|^IMPORTUNACAO|^HOMOFOBIA|^ABUSO|^AMEACA|^ASSEDIO|^CONDUTO|^CONSTRANGIMENTO|^DIFAMACAO|^ESTUPRO|^EXPLORACAO|^FEMINICIDIO|^INJURIA|^LESAO CORPORAL GRAVE|^LESAO CORPORAL GRAVISSIMA|^LESAO CORPORAL LEVE|^LESAO CORPORAL SEGUIDA DE MORTE|^OUTROS CRIMES CONTRA A FAMILIA|^PERSEGUICAO|^SEQUESTRO|^VIOLACAO SEXUAL|^VIOLENCIA PSICOLOGICA"))
 
 
-dados2023_art3 <- read_excel("Dados/SSP_LEI15610/Mensal_Art3/SPJ_DADOS_ABERTOS_OCORRENCIAS_JAN_DEZ_2023_em 06.01.2025.xls") %>% 
+dados2023_art3 <- read_excel("C:/Users/fernanda-romeiro/OneDrive - Governo do Estado do Rio Grande do Sul/Projetos/MVIOL/dados_completos/Dados/SSP_LEI15610/Mensal_Art3/SPJ_DADOS_ABERTOS_OCORRENCIAS_JAN_DEZ_2023_em 06.01.2025.xls") %>% 
   
   janitor::clean_names() %>% 
   dplyr::select(sequencia:cor_vitima) %>% 
@@ -35,7 +38,7 @@ dados2023_art3 <- read_excel("Dados/SSP_LEI15610/Mensal_Art3/SPJ_DADOS_ABERTOS_O
                            "^HOMICIDIO CULPOSO|^HOMICIDIO DOLOSO|^IMPORTUNACAO|^HOMOFOBIA|^ABUSO|^AMEACA|^ASSEDIO|^CONDUTO|^CONSTRANGIMENTO|^DIFAMACAO|^ESTUPRO|^EXPLORACAO|^FEMINICIDIO|^INJURIA|^LESAO CORPORAL GRAVE|^LESAO CORPORAL GRAVISSIMA|^LESAO CORPORAL LEVE|^LESAO CORPORAL SEGUIDA DE MORTE|^OUTROS CRIMES CONTRA A FAMILIA|^PERSEGUICAO|^SEQUESTRO|^VIOLACAO SEXUAL|^VIOLENCIA PSICOLOGICA"))
 
 
-dados2024_art3 <- read_excel("Dados/SSP_LEI15610/Mensal_Art3/SPJ_DADOS_ABERTOS_OCORRENCIAS_JAN_DEZ_2024 - Em 05.05.2025.xls") %>% 
+dados2024_art3 <- read_excel("C:/Users/fernanda-romeiro/OneDrive - Governo do Estado do Rio Grande do Sul/Projetos/MVIOL/dados_completos/Dados/SSP_LEI15610/Mensal_Art3/SPJ_DADOS_ABERTOS_OCORRENCIAS_JAN_DEZ_2024 - Em 05.05.2025.xls") %>% 
   
   janitor::clean_names() %>% 
   dplyr::select(sequencia:cor_vitima) %>% 
@@ -43,7 +46,7 @@ dados2024_art3 <- read_excel("Dados/SSP_LEI15610/Mensal_Art3/SPJ_DADOS_ABERTOS_O
                            "^HOMICIDIO CULPOSO|^HOMICIDIO DOLOSO|^IMPORTUNACAO|^HOMOFOBIA|^ABUSO|^AMEACA|^ASSEDIO|^CONDUTO|^CONSTRANGIMENTO|^DIFAMACAO|^ESTUPRO|^EXPLORACAO|^FEMINICIDIO|^INJURIA|^LESAO CORPORAL GRAVE|^LESAO CORPORAL GRAVISSIMA|^LESAO CORPORAL LEVE|^LESAO CORPORAL SEGUIDA DE MORTE|^OUTROS CRIMES CONTRA A FAMILIA|^PERSEGUICAO|^SEQUESTRO|^VIOLACAO SEXUAL|^VIOLENCIA PSICOLOGICA"))
 
 
-dados2025_art3 <- read_excel("Dados/SSP_LEI15610/Mensal_Art3/SPJ_DADOS_ABERTOS_OCORRENCIAS_JAN_ABR_2025 - Em 05.05.2025.xls") %>% 
+dados2025_art3 <- read_excel("C:/Users/fernanda-romeiro/OneDrive - Governo do Estado do Rio Grande do Sul/Projetos/MVIOL/dados_completos/Dados/SSP_LEI15610/Mensal_Art3/SPJ_DADOS_ABERTOS_OCORRENCIAS_JAN_ABR_2025 - Em 05.05.2025.xls") %>% 
   
   janitor::clean_names() %>% 
   dplyr::select(sequencia:cor_vitima) %>% 
@@ -55,8 +58,8 @@ dados2025_art3 <- read_excel("Dados/SSP_LEI15610/Mensal_Art3/SPJ_DADOS_ABERTOS_O
 # ARTIGO 6° - III
 #######################################################################################
 
-dados2021_2PC_art6 <- readr::read_delim("Dados/SSP_LEI15610/Semestral_Art6/PC - Art. 6 Inc. III - Vitimas Mulheres de Violencia Domestica e Familiar_2021_2.csv", 
-                                                                                         delim = ";", escape_double = FALSE, trim_ws = TRUE)
+dados2021_2PC_art6 <- readr::read_delim(here("Dados", "SSP_LEI15610", "Semestral_Art6", "PC - Art. 6 Inc. III - Vitimas Mulheres de Violencia Domestica e Familiar_2021_2.csv", 
+                                                                                         delim = ";", escape_double = FALSE, trim_ws = TRUE))
 ######
 #2022
 #####
