@@ -520,12 +520,12 @@ dadosTotais_MVIOLBI <- tentado_2018 %>%
                                              municipio == "NAO ME TOQUE" ~ "NAO-ME-TOQUE",
                                              municipio == "XANGRILA" ~ "XANGRI-LA",
                                              .default = municipio)) %>% 
-  dplyr::left_join(MUNICIPIOS_MP, by = c("municipio" = "municipio"))
+  dplyr::left_join(MUNICIPIOS_MP, by = c("municipio" = "municipio_mp"))
   
 
 
 write_xlsx(dadosTotais_MVIOLBI, 
-           paste0("C:/Users/fernanda-romeiro/OneDrive - Governo do Estado do Rio Grande do Sul/Projetos/MVIOL/MVIOL_project//Dados/SSP_LEIPENHA/dadosTotais_MVIOLBI_2025.xlsx"))
+           paste0("C:/Users/fernanda-romeiro/OneDrive - Governo do Estado do Rio Grande do Sul/Projetos/MVIOL/dados_completos/Dados/SSP_LEIPENHA/dadosTotais_MVIOLBI_2025.xlsx"))
 
 
 #######################################################################################
