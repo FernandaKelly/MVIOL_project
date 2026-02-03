@@ -6,6 +6,7 @@ library(tidyverse)
 library(magrittr)
 library(readxl)
 library(here)
+setwd("C:/Users/fernanda-romeiro/OneDrive - Governo do Estado do Rio Grande do Sul/Projetos/MVIOL/dados_completos/Dados")
 here::set_here("C:/Users/fernanda-romeiro/OneDrive - Governo do Estado do Rio Grande do Sul/Projetos/MVIOL/dados_completos/Dados")
 
 #https://ssp.rs.gov.br/dados-abertos
@@ -14,7 +15,7 @@ here::set_here("C:/Users/fernanda-romeiro/OneDrive - Governo do Estado do Rio Gr
 # ARTIGO 3°
 #######################################################################################
 
-dados2021_art3 <- read_excel(here("25080213-dados-abertos-ocorrencias-2022-01-ajustado-publicacao.xlsx")) %>% 
+dados2021_art3 <- read_excel(here("SSP_LEI15610","Mensal_Art3", "25080213-dados-abertos-ocorrencias-2022-01-ajustado-publicacao.xlsx")) %>% 
   
   janitor::clean_names() %>% 
   dplyr::select(sequencia:cor_vitima) %>% 
