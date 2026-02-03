@@ -6,7 +6,6 @@
 # FUTURO: AUTOMATIZAR A LEITURA COM WEBSCRAPING
 #######################################################################################
 
-
 library(janitor)
 library(tidyverse)
 library(writexl)
@@ -19,7 +18,7 @@ library(here)
 
 #######################################################################################
 
-MUNICIPIOS_MP <- readxl::read_excel("Dados/ShapeRS/MUNICIPIOS.xlsx") %>% 
+MUNICIPIOS_MP <- readxl::read_excel("C:/Users/fernanda-romeiro/OneDrive - Governo do Estado do Rio Grande do Sul/Projetos/MVIOL/dados_completos/Dados/ShapeRS/MUNICIPIOS.xlsx") %>% 
   janitor::clean_names() %>%
   dplyr::mutate(municipio_mp = stringr::str_to_upper(municipio)) %>% 
   dplyr::mutate(municipio_mp = abjutils::rm_accent(municipio_mp),
@@ -36,65 +35,19 @@ MUNICIPIOS_MP <- readxl::read_excel("Dados/ShapeRS/MUNICIPIOS.xlsx") %>%
                                                 
                                                 = municipio_mp))  
 
-write_xlsx(MUNICIPIOS_MP, 
-           paste0("C:/Users/fernanda-romeiro/OneDrive - Governo do Estado do Rio Grande do Sul/Projetos/MVIOL/MVIOL_project/MUNICIPIOS_MP.xlsx"))
-
-
-MUNICIPIOS <- read_excel("Dados/ShapeRS/MUNICIPIOS.xlsx") %>% 
-  janitor::clean_names()
-
-#######################################################################################
-# arquivo <- "C:/Users/fernanda-romeiro/OneDrive - Governo do Estado do Rio Grande do Sul/Projetos/MVIOL/dados_completos/Dados/SSP_LEIPENHA/12160426-site-violencia-contra-as-mulheres-2018-atualizado-em-07-janeiro-2019-publicacao.xlsx"
-# 
-# sheets <- excel_sheets(arquivo)
-# 
-# 
-# dados_2018 <- sheets %>%
-#   set_names(sheets) %>%   # ou simplesmente set_names()
-#   map(~ read_excel(arquivo, sheet = .x) %>% clean_names())
-# 
-# 
-# dados_2018 <- dados_2018 %>%
-#   imap(~ {
-#     
-#     df <- .x
-#     
-#     # Ajustes específicos
-#     if (.y == "Ameaça") {
-#       df <- df %>%
-#         mutate(across(c(mai, jun, jul, ago, set, out, nov, dez), as.double)) %>%
-#         slice(1:497)
-#     } else if (.y == "Lesão Corporal") {
-#       df <- df %>% slice(1:497)
-#     }
-#     
-#     df %>%
-#       mutate(
-#         ano = "2018",
-#         crime = janitor::make_clean_names(.y)
-#       ) %>%
-#       clean_names()
-#   })
-# 
-# tentado_2018       <- dados_2018$`Feminicídio Tentado`
-# consumado_2018    <- dados_2018$`Feminicídio Consumado`
-# ameaca_2018       <- dados_2018$Ameaça
-# estupro_2018      <- dados_2018$Estupro
-# lesaoCorporal_2018 <- dados_2018$`Lesão Corporal`
 #######################################################################################
 #USANDO O PACOTE HERE
 #######################################################################################
+setwd("C:/Users/fernanda-romeiro/OneDrive - Governo do Estado do Rio Grande do Sul/Projetos/MVIOL/dados_completos")
+here::set_here("C:/Users/fernanda-romeiro/OneDrive - Governo do Estado do Rio Grande do Sul/Projetos/MVIOL/dados_completos")
 here("Dados", "SSP_LEIPENHA")
 ####################
 # 2018
 ####################
 
 
-tentado_2018 <- read_excel(
-  here::here(
-  "12160426-site-violencia-contra-as-mulheres-2018-atualizado-em-07-janeiro-2019-publicacao.xlsx"
-),
-sheet = "Feminicídio Tentado") %>% 
+tentado_2018 <- read_excel("Dados/SSP_LEIPENHA/12160426-site-violencia-contra-as-mulheres-2018-atualizado-em-07-janeiro-2019-publicacao.xlsx",
+              sheet = "Feminicídio Tentado") %>% 
   dplyr::mutate(ano = base::rep("2018", 497),
                 crime = base::rep("tentado", 497)) %>% 
   janitor::clean_names() 
@@ -502,14 +455,14 @@ lesaoCorporal_2025 <- read_excel("Dados/SSP_LEIPENHA/10163332-site-violencia-con
 #   dplyr::left_join(lesaoCorporal_2024, by = c("municipio_2018" = "municipio_2024")) %>%
 #   dplyr::left_join(lesaoCorporal_2025, by = c("municipio_2018" = "municipio_2025"))
 
-sheets <- list("Feminicio Tentado"        = dados_tentado, 
-               "Femicidio Consumado"      = dados_consumado,
-               "Ameaça"                   = dados_ameaca,
-               "Estupro"                  = dados_estupro,
-               "Lesão Corporal"           = dados_lesaoCorporal)
-
-write_xlsx(sheets, 
-           paste0("C:/Users/fernanda-romeiro/OneDrive - Governo do Estado do Rio Grande do Sul/Projetos/MVIOL/MVIOL_project/dados_MVIOL.xlsx"))
+# sheets <- list("Feminicio Tentado"        = dados_tentado, 
+#                "Femicidio Consumado"      = dados_consumado,
+#                "Ameaça"                   = dados_ameaca,
+#                "Estupro"                  = dados_estupro,
+#                "Lesão Corporal"           = dados_lesaoCorporal)
+# 
+# write_xlsx(sheets, 
+#            paste0("C:/Users/fernanda-romeiro/OneDrive - Governo do Estado do Rio Grande do Sul/Projetos/MVIOL/MVIOL_project/dados_MVIOL.xlsx"))
 
 #######################################################################################
 # BIND
@@ -572,7 +525,7 @@ dadosTotais_MVIOLBI <- tentado_2018 %>%
 
 
 write_xlsx(dadosTotais_MVIOLBI, 
-           paste0("C:/Users/fernanda-romeiro/OneDrive - Governo do Estado do Rio Grande do Sul/Projetos/MVIOL/MVIOL_project//Dados/SSP_LEIPENHA/dadosTotais_MVIOLBI.xlsx"))
+           paste0("C:/Users/fernanda-romeiro/OneDrive - Governo do Estado do Rio Grande do Sul/Projetos/MVIOL/MVIOL_project//Dados/SSP_LEIPENHA/dadosTotais_MVIOLBI_2025.xlsx"))
 
 
 #######################################################################################
