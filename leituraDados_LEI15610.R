@@ -349,7 +349,7 @@ ggplot() +
 
 
 
-
+dados_classificados %>% janitor::tabyl(classificacao, sexo_vitima, show_na = FALSE) %>% janitor::adorn_percentages()
 
 
 
